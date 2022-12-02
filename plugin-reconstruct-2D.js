@@ -80,6 +80,10 @@ var jsPsychReconstruct_2D = (function (jspsych) {
               type: jspsych.ParameterType.STRING,
               default: 'circle', // or 'ellipse'
           },
+          preload: {
+            type: jspsych.ParameterType.BOOL,
+            default: false,
+          }
       },
   };
   /**
@@ -92,7 +96,7 @@ var jsPsychReconstruct_2D = (function (jspsych) {
    */
   class Reconstruction2DPlugin {
       constructor(jsPsych) {
-          this.jsPsych = jsPsych;
+          this.jsPsych = jsPsych;               
       }      
       trial(display_element, trial) {    
           this.display = display_element;
@@ -100,7 +104,7 @@ var jsPsychReconstruct_2D = (function (jspsych) {
           var image_param = this.params.starting_value; // initial_param      
           this.init_display(image_param);
           this.setup_event_listeners(); 
-          this.start_time = performance.now();                   
+          this.start_time = performance.now();                         
       }
       init_display(image_param){
           this.add_css();
