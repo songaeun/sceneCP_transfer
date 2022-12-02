@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>    
+    <title>PsyExperiment</title>    
+    <script src="https://unpkg.com/jspsych@7.1.2"></script>
+    <link href="https://unpkg.com/jspsych@7.1.2/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.0"></script>
+    <script src="plugin-reconstruct-2D.js"></script>
+    <script src="make_condition.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.2/underscore.min.js" integrity="sha512-6mqtVtgbfCJNW9phBE9ZIsviePVIHAv5No5hF+Sw/A/FSCQTUaHQkKykXhr5IpNhJkvcqftZLIe+T6nsCro5fw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body></body>
+<script>
+    /* 할 것: 
+    2. 자극 픽스 (dimension, & attribute score 맞추기). 
+    4. Instruction revision
+    */
+    // ** design ** //
+    var key_feature = 'lighting';
+    var cat_label = ['L', 'R']
+    var random_cat_label = _.sample(cat_label, 2);
+    var room_set = ['bedroom3_wood-lighting', 'livingroom24_wood-lighting'];  
+    var learning_set = room_set[0];
+    var transfer_set = room_set[1]; 
+    var space_rot = 0;//Math.random()*360; 
+    var n_round_learning = 5;
+    var econd = make_condition(key_feature, random_cat_label, learning_set, n_round_learning, transfer_set);
+    // chunking (for breaks for test blocks)
+    var n_round_test = 5;
+    var testing_cond_by_round = _.chunk(_.shuffle(econd.memory),econd.memory.length/n_round_test);
+    var transfer_cond_by_round = _.chunk(_.shuffle(econd.transfer_memory),econd.transfer_memory.length/n_round_test);
+
+    // ** initialize ** //
+    const jsPsych = initJsPsych();
+
+    // ** image preloading ** //
+    var images = [];
+    for (var r of room_set){
+        for (var i=0; i<625; i++){
+            images.push("stimuli/"+r+"/"+("000000"+i).slice(-6)+".webp")
+        }
+    }
+    jsPsych.pluginAPI.preloadImages(images, 
+        function(){ startExperiment(); },
+        function(file){ console.log('file loaded: ', file); },
+        function(file){ console.log('error loading file: ', file); }
+    );
+    
+    // ** instruction ** //
+
+
+
+    // ** initial learn ** //    
+    var learn_display = {
+        type: jsPsychImageKeyboardResponse,
+        stimulus: jsPsych.timelineVariable('img_path'),
+        choices: ['e', 'i'],
+        data: {
+            disp_type: 'learn_display',
+            key_feature: jsPsych.timelineVariable('key_feature'),
+            answer: jsPsych.timelineVariable('label'),
+            position: jsPsych.timelineVariable('position'),
+            stim_coord: jsPsych.timelineVariable('stim_coord'),
+            stim_idx: jsPsych.timelineVariable('stim_idx')
+        },
+        prompt: '<p>Press "e" for the left wing and "i" for the right wing.</p>',
+        trial_duration: 2000,
+        on_finish: function(data){            
+            if(jsPsych.timelineVariable('label')=="L"){
+                var correct_key = "e"
+            }else if(jsPsych.timelineVariable('label')=="R"){
+                var correct_key = "i"
+            }              
+            if(data.response == null){
+                data.correct = 'late';
+            } else {
+                if(jsPsych.pluginAPI.compareKeys(data.response, correct_key)){
+                    data.correct = 'correct';
+                } else {
+                    data.correct = 'wrong';
+                }
+            }            
+        }
+    } 
+    var feedback_display = {
+        type:jsPsychHtmlKeyboardResponse,
+        stimulus: function(){
+            var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct;  
+            if(last_trial_correct == 'correct') {
+                var fb = '<p><mark style="color:green; background:none; font-size:30pt;">Correct!</mark></br></p>'         
+            } else if(last_trial_correct == 'wrong'){
+                var fb = '<p><mark style="color:red; background:none; font-size:30pt;">Wrong...</mark></br></p>'
+            } else if(last_trial_correct == 'late'){
+                var fb = '<p><mark style="color:brown; background:none; font-size:30pt;">Too slow</mark></p>'
+            }
+            return fb
+        },
+        trial_duration: 1000,
+        choices: "NO_KEYS"
+    }
+    for(r=0; r<n_round_learning; r++){
+        this['learn_main'+(r+1)] = {
+            timeline: [learn_display, feedback_display],
+            timeline_variables: econd.learning['r'+(r+1)],
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_round_learning; r++){     
+        if(r!=(n_round_learning-1)){
+            this['learn_main_break'+(r+1)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round '+(r+1)+'.</br>'+
+                    'You have '+(n_round_learning-r-1)+' more round(s) to go.</br>'+
+                    'Take a break and press the button to proceed.</br></br></div>',               
+                choices: ['start'],
+                data: {disp_type: 'learn_main_break'}
+            }
+        } else {
+            this['learn_main_break'+(r+1)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round'+(r+1)+'.</br>'+
+                'Take a break and press the button to move on to the next session.</br></br></div>',                    
+                choices: ['start'],
+                data: {disp_type: 'learn_main_break'}
+            }
+
+        }                       
+    }
+    // ** reconstruction ** //
+    var fixation = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: '<p style="font-size: 48px;">+</p>',
+        choices: "NO_KEYS",
+        trial_duration: 1000,
+    }
+    var blank = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: ' ',
+        choices: "NO_KEYS",
+        trial_duration: 1000,
+    }
+    var target_display = {
+        type: jsPsychImageKeyboardResponse,
+        stimulus: jsPsych.timelineVariable('img_path'),
+        choices: "NO_KEYS",
+        trial_duration: 200,
+        data: {disp_type: 'recon_target'}
+    }
+    var reconstruction = {
+        type: jsPsychReconstruct_2D,
+        horizontal_step_size: 25,
+        vertical_step_size: 25,
+        image_path: jsPsych.timelineVariable('space_path'),
+        image_format: 'webp',        
+        canvas_shape: 'circle',
+        uncertainty_range: true,
+        data: {
+            disp_type: 'reconstruction',
+            key_feature: jsPsych.timelineVariable('key_feature'),
+            position: jsPsych.timelineVariable('position'),
+            label: jsPsych.timelineVariable('label'),
+            answer_coord: jsPsych.timelineVariable('stim_coord'),
+            answer: jsPsych.timelineVariable('stim_idx'),
+            space_rotation: space_rot
+        }  
+    }
+    for(r=0; r<n_round_test; r++){
+        this['test_main'+(r+1)] = {
+            timeline: [fixation, target_display, blank, reconstruction],
+            timeline_variables: testing_cond_by_round[r],
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_round_test; r++){
+        this['transfer_main'+(r+1)] = {
+            timeline: [fixation, target_display, blank, reconstruction],
+            timeline_variables: transfer_cond_by_round[r],
+            randomize_order: true
+        }
+    }
+    for(r=0; r<n_round_test; r++){     
+        if(r!=(n_round_test-1)){
+            this['test_main_break'+(r+1)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round '+(r+1)+'.</br>'+
+                'You have '+(n_round_learning-r-1)+' more round(s) to go.</br>'+
+                'Take a break and press the button to proceed.</br></br></div>',                    
+                choices: ['start'],
+                data: {disp_type: 'learning_main_break'}
+            }
+        } else {
+            this['test_main_break'+(r+1)] = {                
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="font-size:20px;">This is the end of round'+(r+1)+'.</br>'+
+                'Take a break and press the button to proceed.</br></br></div>',                    
+                choices: ['start'],
+                data: {disp_type: 'learning_main_break'}
+            }
+
+        }                       
+    }
+     
+    // ** transfer learn ** //    
+
+    var transfer_learning = {
+        timeline: [fixation, learn_display], // without feedback
+        timeline_variables: econd.transfer_learning,
+        randomize_order: true
+    };
+
+    // ** debrief question  ** //
+    var survey = {
+        type: jsPsychSurveyText,
+        preamble: "<p><b>All sessions are over! Thanks for participating.</br>"+
+            "We'll appreciate it if you share your participation experience below.</b></p>",
+        questions: [
+            {prompt: 'What do you think the purpose of this study is?', name: 'Purpuse', rows: 5},
+            {prompt: 'Did you use any specific rule when classifying the rooms? If yes, please describe it.', name: 'Rule', rows: 5},
+            {prompt: 'Do you have any other feedback about this experiment, please tell us!', name: 'Feedback', rows: 5}
+        ]
+    }
+    // ** demographic page ** //
+    var demographic_page = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: html='<p style="color: black; font-size: 20px;">'
+            +'You are done! Now we would like to collect your demographic information.</br>'
+            +'Click the <b>Demographic questions</b> below to complete the form.</br>'                
+            +'After submitting the form, come back to this page and check out the debriefing letter!</br></br>'
+            +'<a href="https://redcap.utoronto.ca/surveys/index.php?s=DDT8ME9KFL&study_name=sceneCP_transfer" target="_blank">'
+            +'Demographic questions </a></br></br></p>',
+        choices: ['Go to the debriefing letter'], 
+        data: {disp_type: 'demographic-link'}        
+    }
+
+    // ** debrief letter ** //
+    var debrief_page = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: function(){                            
+            var html = 
+            '<p area-selected="font-size:15px;"> Thank you for participating! </br> You can leave this page.</p>'+                          
+            '<embed src="stimuli/debrief_letter.pdf" style="width:80vw; height:70vh;"></embed>'
+            return html;
+        },
+        choices: "NO_KEYS",        
+        data: {disp_type: 'debrief_page'}            
+    }
+
+    // ** timeline ** //
+    timeline = [];   
+    // timeline.push({
+    //     type: jsPsychFullscreen,
+    //     fullscreen_mode: true,
+    //     data: {disp_type: 'fullscreen-in'}
+    // });
+    // timeline.push(inst_welcome); // need to test here!
+    // ** learning    
+    // timeline.push(inst_session1);
+    // timeline.push(learn_main1);
+    // timeline.push(learn_main_break1);
+    // timeline.push(learn_main2);
+    // timeline.push(learn_main_break2);
+    // timeline.push(learn_main3);
+    // timeline.push(learn_main_break3);
+    // timeline.push(learn_main4);
+    // timeline.push(learn_main_break4);
+    // timeline.push(learn_main5);
+    // timeline.push(learn_main_break5);
+    // ** memory reconstruction
+    // timeline.push(inst_session2);
+    // timeline.push(testing_prac);
+    // timeline.push(memory_prac2main);
+    timeline.push(test_main1);
+    timeline.push(test_main_break1);
+    timeline.push(test_main2);
+    timeline.push(test_main_break2);
+    timeline.push(test_main3);
+    timeline.push(test_main_break3);
+    timeline.push(test_main4);
+    timeline.push(test_main_break4);
+    timeline.push(test_main5);
+    timeline.push(test_main_break5);
+    // ** transfer-memory reconstruction
+    // timeline.push(inst_session3);        
+    timeline.push(transfer_main1);
+    timeline.push(test_main_break1);
+    timeline.push(transfer_main2);
+    timeline.push(test_main_break2);    
+    timeline.push(transfer_main3);
+    timeline.push(test_main_break3);
+    timeline.push(transfer_main4);
+    timeline.push(test_main_break4);     
+    timeline.push(transfer_main5);
+    timeline.push(test_main_break5);      
+    // ** transfer-learning
+    // timeline.push(inst_session4);
+    // timeline.push(transfer_learning); 
+    // timeline.push(blank);
+    // ** debriefing question
+    timeline.push(survey);
+    // timeline.push(save_data);
+    // ** end
+    // timeline.push({
+    //     type: jsPsychFullscreen,
+    //     fullscreen_mode: false,
+    //     delay_after: 0,
+    //     data: {disp_type: 'fullscreen-out'}
+    // });
+    timeline.push(demographic_page);
+    timeline.push(debrief_page);
+
+    // jsPsych.run([trial]);
+    function startExperiment(){
+        jsPsych.run(timeline);
+    }
+    
+    
+</script>
+</html>
