@@ -61,7 +61,7 @@ var jsPsychReconstruct_2D = (function (jspsych) {
               type: jspsych.ParameterType.INT,
               default: 300
           },
-          canvas_diameter: {
+          canvas_diameter: { // when canvas_shape set to "circle"
               type: jspsych.ParameterType.INT,
               default: 300
           },         
@@ -79,10 +79,6 @@ var jsPsychReconstruct_2D = (function (jspsych) {
           range_type: {
               type: jspsych.ParameterType.STRING,
               default: 'circle', // or 'ellipse'
-          },
-          preload: {
-            type: jspsych.ParameterType.BOOL,
-            default: false,
           }
       },
   };
@@ -97,15 +93,32 @@ var jsPsychReconstruct_2D = (function (jspsych) {
   class Reconstruction2DPlugin {
       constructor(jsPsych) {
           this.jsPsych = jsPsych;               
-      }      
-      trial(display_element, trial) {    
+      }         
+      trial(display_element, trial) {
           this.display = display_element;
           this.params = trial;              
-          var image_param = this.params.starting_value; // initial_param      
-          this.init_display(image_param);
+          var image_param = this.params.starting_value; // initial_param     
+          this.preload() 
+          this.init_display(image_param);          
           this.setup_event_listeners(); 
-          this.start_time = performance.now();                         
+          this.start_time = performance.now();   
+          //prepare cell coordinate: "x_y"
+          this.cell_coordinates = [];
+          for(var y=0; y<this.params.vertical_step_size; y++){
+              for(var x=0; x<this.params.horizontal_step_size; x++){
+                  this.cell_coordinates.push(x+"_"+y)
+              }
+          };                      
       }
+      preload(){
+        var images_transfer = [];  
+        var transfer_set = "livingroom24_wood-lighting"  
+        for (var i=0; i<625; i++){
+            images_transfer.push("stimuli/"+transfer_set+"/"+("000000"+i).slice(-6)+".webp")
+        }
+        this.jsPsych.pluginAPI.preloadImages(images_transfer)
+        console.log('a')
+      }   
       init_display(image_param){
           this.add_css();
           let canvas_html;
@@ -122,21 +135,14 @@ var jsPsychReconstruct_2D = (function (jspsych) {
           }
           let image_html;
           image_html=`<div id="arena_${this.params.image_position}">
-          <img src="${this.params.image_path}/${image_param}.${this.params.image_format}" 
+          <img src="${this.params.image_path}${image_param}.${this.params.image_format}" 
           width="${this.params.image_width}" height="${this.params.image_height}"></div>`;
           let display_html;
           display_html = '<div id="base_container">'+ canvas_html + image_html + '</div>';
           this.display.innerHTML = display_html;      
-          this.recon_arena = this.display.querySelector("#recon_canvas");    
-          //prepare cell coordinate: "x_y"
-          this.cell_coordinates = [];
-          for(var y=0; y<this.params.vertical_step_size; y++){
-              for(var x=0; x<this.params.horizontal_step_size; x++){
-                  this.cell_coordinates.push(x+"_"+y)
-              }
-          }; 
+          this.recon_arena = this.display.querySelector("#recon_canvas");           
       }
-      setup_event_listeners() {          
+      setup_event_listeners() {
           document.addEventListener("mousemove", this.search_event);
           document.addEventListener("click", this.search_confirm_event);               
       }      
@@ -144,7 +150,7 @@ var jsPsychReconstruct_2D = (function (jspsych) {
           this.is_search = true;
           this.image_coord = this.find_param(e.clientX,e.clientY);  
           this.image_param = ("000000"+this.image_coord).slice(-6);  
-          this.init_display(this.image_param);                                
+          this.init_display(this.image_param);                              
       }      
       search_confirm_event (e) {
           this.search_end = performance.now();
@@ -153,7 +159,7 @@ var jsPsychReconstruct_2D = (function (jspsych) {
           this.trial_data.search_rt = this.search_end - this.start_time;
           this.trial_data.response = this.image_param;  
           this.is_search = false;
-          // mark the response
+          // response position indicator
           var rect = this.recon_arena.getBoundingClientRect();  
           this.init_x = e.clientX - rect.left;
           this.init_y = e.clientY - rect.top;
@@ -196,7 +202,7 @@ var jsPsychReconstruct_2D = (function (jspsych) {
             var mx = e.clientX - rect.left;
             var my = e.clientY - rect.top;            
             this.uncertain_rad = Math.sqrt(Math.pow((mx-this.init_x), 2) + Math.pow((my-this.init_y),2))
-            draw_circle(this.uncertain_rad);        
+            draw_circle(this.uncertain_rad);     
           }
       }   
       range_confirm_event (){          
