@@ -43,11 +43,11 @@
 <script>
     /* 할 것: 
     2. 자극 픽스 (dimension & attribute score 맞추기). 
-    4. Instruction
     */
+
     // ** design ** //
     var key_feature = 'lighting'
-    var cat_label = ['L', 'R']
+    var cat_label = ['set1', 'set2']
     var random_cat_label = _.sample(cat_label, 2)
     var room_set = ['bedroom3_wood-lighting', 'livingroom24_wood-lighting']
     var learning_set = room_set[0]
@@ -66,26 +66,66 @@
     const jsPsych = initJsPsych();
 
     // ** image preloading ** //
+    var preload_inst = {
+        type: jsPsychPreload,
+        images: ['stimuli/instruction/welcome_p1.png', 'stimuli/instruction/session1_p2.png',
+        'stimuli/instruction/session2_p3.png', 'stimuli/instruction/session3_p4.png',
+        'stimuli/instruction/session4_p5.png'],
+        data: {disp_type: 'preload_inst'}
+    }
     var images_learning = [];
     for (var i=0; i<625; i++){
         images_learning.push("stimuli/"+learning_set+"/"+("000000"+i).slice(-6)+".webp")
     }
+    images_learning.push("stimuli/"+learning_set+"/"+"999999.webp")
     var preload_learning = {
         type: jsPsychPreload, 
-        images: images_learning
+        images: images_learning,
+        data: {disp_type: 'preload_learning'}
     }
     var images_transfer = [];    
     for (var i=0; i<625; i++){
         images_transfer.push("stimuli/"+transfer_set+"/"+("000000"+i).slice(-6)+".webp")
     }    
+    images_transfer.push("stimuli/"+transfer_set+"/"+"999999.webp")
     var preload_transfer = {
         type: jsPsychPreload, 
-        images: images_transfer
+        images: images_transfer,
+        data: {disp_type: 'preload_transfer'}
     }
     
+    
     // ** instruction ** //
-
-
+    var inst_welcome = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<img src="stimuli/instruction/welcome_p1.png" style="width:1000px"></img>',
+        choices: ['next'],
+        data: {disp_type: 'inst_welcome'}
+    }
+    var inst_session1 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<img src="stimuli/instruction/session1_p2.png" style="width:1000px"></img>',
+        choices: ['start'],
+        data: {disp_type: 'inst_session1'}
+    }
+    var inst_session2 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<img src="stimuli/instruction/session2_p3.png" style="width:1000px"></img>',
+        choices: ['start'],
+        data: {disp_type: 'inst_session2'}
+    }
+    var inst_session3 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<img src="stimuli/instruction/session3_p4.png" style="width:1000px"></img>',
+        choices: ['start'],
+        data: {disp_type: 'inst_session3'}
+    }
+    var inst_session4 = {
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<img src="stimuli/instruction/session4_p5.png" style="width:1000px"></img>',
+        choices: ['start'],
+        data: {disp_type: 'inst_session4'}
+    }
 
     // ** initial learn ** //    
     var learn_display = {
@@ -100,12 +140,12 @@
             stim_coord: jsPsych.timelineVariable('stim_coord'),
             stim_idx: jsPsych.timelineVariable('stim_idx')
         },
-        prompt: '<p>Press "e" for the left wing and "i" for the right wing.</p>',
+        prompt: '<p>Press "e" for Set 1 and "i" for Set 2.</p>',
         trial_duration: 2000,
         on_finish: function(data){            
-            if(jsPsych.timelineVariable('label')=="L"){
+            if(jsPsych.timelineVariable('label')=="set1"){
                 var correct_key = "e"
-            }else if(jsPsych.timelineVariable('label')=="R"){
+            }else if(jsPsych.timelineVariable('label')=="set2"){
                 var correct_key = "i"
             }              
             if(data.response == null){
@@ -133,13 +173,14 @@
             return fb
         },
         trial_duration: 1000,
-        choices: "NO_KEYS"
+        choices: "NO_KEYS",
+        data: {disp_type: "learn_feedback"}
     }
-    var learning_prac = { // include or not? 
-        timeline: [learn_display, feedback_display],
-        timeline_variables: _.shuffle(pcond.learning.r1).slice(0,10),
-        randomize_order: true
-    }
+    // var learning_prac = { // include or not? 
+    //     timeline: [learn_display, feedback_display],
+    //     timeline_variables: _.shuffle(pcond.learning.r1).slice(0,10),
+    //     randomize_order: true
+    // }
     for(r=0; r<n_round_learning; r++){
         this['learn_main'+(r+1)] = {
             timeline: [learn_display, feedback_display],
@@ -174,12 +215,14 @@
         stimulus: '<p style="font-size: 48px;">+</p>',
         choices: "NO_KEYS",
         trial_duration: 1000,
+        data: {disp_type: 'fixation'}
     }
     var blank = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: ' ',
         choices: "NO_KEYS",
         trial_duration: 1000,
+        data: {disp_type: 'blank'}
     }
     var target_display = {
         type: jsPsychImageKeyboardResponse,
@@ -241,7 +284,18 @@
 
         }                       
     }
-     
+
+    // ** reconstruction prac ** //
+    var test_prac = {
+        timeline: [fixation, target_display, blank, reconstruction],
+        timeline_variables: _.shuffle(pcond.memory).slice(0,3)
+    }
+    var test_prac2main = {
+        type: jsPsychHtmlButtonResponse,
+        stimuli: '<div style="font-size:20px;">Practice is done. Now move on to the main trials.',
+        choices: ['start'],
+        data: {disp_type: 'test_pract2main'}
+    }
     // ** transfer learn ** //    
 
     var transfer_learning = {
@@ -346,7 +400,7 @@
 
     var save_data = {
       type: jsPsychHtmlKeyboardResponse,
-      stimulus: '<p>You are done! Now we are saving your data. Do not leave this page yet.</p>',
+      stimulus: '<p>We are saving your data. Do not leave this page.</p>',
       choices: "NO_KEYS",
       trial_duration: 3000,
       data: { // random rotation angle saving                
@@ -368,69 +422,67 @@
 
     // ** timeline ** //
     timeline = [];  
+    timeline.push(preload_inst);
     timeline.push(consent);
-    timeline.push(demographic_page);
-    // // timeline.push(inst_welcome);
-    // // ** learning       
-    // timeline.push(preload_learning);
-    // // timeline.push(inst_session1);
-    // // // timeline.push(learning_prac);
-    // // // timeline.push(learning_prac2main);
-    // timeline.push(learn_main1);
-    // timeline.push(learn_main_break1);
-    // timeline.push(learn_main2);
-    // timeline.push(learn_main_break2);
-    // timeline.push(learn_main3);
-    // timeline.push(learn_main_break3);
-    // timeline.push(learn_main4);
-    // timeline.push(learn_main_break4);
-    // timeline.push(learn_main5);
-    // timeline.push(learn_main_break5);
-    // // ** memory reconstruction
-    // timeline.push(preload_learning);
-    // // timeline.push(inst_session2); 
-    // // timeline.push(testing_prac);
-    // // timeline.push(test_prac2main);    
-    // timeline.push(test_main1);
-    // timeline.push(test_main_break1);
-    // timeline.push(test_main2);
-    // timeline.push(test_main_break2);
-    // timeline.push(test_main3);
-    // timeline.push(test_main_break3);
-    // timeline.push(test_main4);
-    // timeline.push(test_main_break4);
-    // timeline.push(test_main5);
-    // timeline.push(test_main_break5);
-    // // ** transfer-memory reconstruction
-    // timeline.push(preload_transfer);
-    // // timeline.push(inst_session3);           
-    // timeline.push(transfer_main1);
-    // timeline.push(test_main_break1);
-    // timeline.push(transfer_main2);
-    // timeline.push(test_main_break2);    
-    // timeline.push(transfer_main3);
-    // timeline.push(test_main_break3);
-    // timeline.push(transfer_main4);
-    // timeline.push(test_main_break4);     
-    // timeline.push(transfer_main5);
-    // timeline.push(test_main_break5);      
-    // // ** transfer-learning
-    // timeline.push(preload_transfer);
-    // // timeline.push(inst_session4);    
-    // timeline.push(transfer_learning);
-    // timeline.push(blank);
-    // // ** debriefing question
-    // timeline.push(survey);
+    timeline.push(demographic_page);    
+    timeline.push(inst_welcome);
+    // ** learning           
+    timeline.push(inst_session1);
+    timeline.push(preload_learning);
+    timeline.push(learn_main1);
+    timeline.push(learn_main_break1);
+    timeline.push(learn_main2);
+    timeline.push(learn_main_break2);
+    timeline.push(learn_main3);
+    timeline.push(learn_main_break3);
+    timeline.push(learn_main4);
+    timeline.push(learn_main_break4);
+    timeline.push(learn_main5);
+    timeline.push(learn_main_break5);
+    // // ** memory reconstruction    
+    timeline.push(inst_session2); 
+    timeline.push(preload_learning);
+    timeline.push(test_prac);
+    timeline.push(test_prac2main);    
+    timeline.push(test_main1);
+    timeline.push(test_main_break1);
+    timeline.push(test_main2);
+    timeline.push(test_main_break2);
+    timeline.push(test_main3);
+    timeline.push(test_main_break3);
+    timeline.push(test_main4);
+    timeline.push(test_main_break4);
+    timeline.push(test_main5);
+    timeline.push(test_main_break5);
+    // ** transfer-memory reconstruction
+    timeline.push(preload_transfer);
+    timeline.push(inst_session3);           
+    timeline.push(transfer_main1);
+    timeline.push(test_main_break1);
+    timeline.push(transfer_main2);
+    timeline.push(test_main_break2);    
+    timeline.push(transfer_main3);
+    timeline.push(test_main_break3);
+    timeline.push(transfer_main4);
+    timeline.push(test_main_break4);     
+    timeline.push(transfer_main5);
+    timeline.push(test_main_break5);      
+    // ** transfer-learning
+    timeline.push(inst_session4);    
+    timeline.push(transfer_learning);
+    timeline.push(blank);
+    // ** debriefing question
+    timeline.push(survey);
     timeline.push(save_data);
     // // ** end
-    // timeline.push({
-    //     type: jsPsychFullscreen,
-    //     fullscreen_mode: false,
-    //     delay_after: 0,
-    //     data: {disp_type: 'fullscreen-out'}
-    // });
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: false,
+        delay_after: 0,
+        data: {disp_type: 'fullscreen-out'}
+    });
     
-    // timeline.push(debrief_page);
+    timeline.push(debrief_page);
 
     jsPsych.run(timeline);
     // function startExperiment(){

@@ -98,7 +98,7 @@ var jsPsychReconstruct_2D = (function (jspsych) {
           this.display = display_element;
           this.params = trial;              
           var image_param = this.params.starting_value; // initial_param     
-          this.preload() 
+        //   this.preload() 
           this.init_display(image_param);          
           this.setup_event_listeners(); 
           this.start_time = performance.now();   
@@ -110,15 +110,15 @@ var jsPsychReconstruct_2D = (function (jspsych) {
               }
           };                      
       }
-      preload(){
-        var images_transfer = [];  
-        var transfer_set = "livingroom24_wood-lighting"  
-        for (var i=0; i<625; i++){
-            images_transfer.push("stimuli/"+transfer_set+"/"+("000000"+i).slice(-6)+".webp")
-        }
-        this.jsPsych.pluginAPI.preloadImages(images_transfer)
-        console.log('a')
-      }   
+    //   preload(){
+    //     var images_transfer = [];  
+    //     var transfer_set = "livingroom24_wood-lighting"  
+    //     for (var i=0; i<625; i++){
+    //         images_transfer.push("stimuli/"+transfer_set+"/"+("000000"+i).slice(-6)+".webp")
+    //     }
+    //     this.jsPsych.pluginAPI.preloadImages(images_transfer)
+    //     console.log('a')
+    //   }   
       init_display(image_param){
           this.add_css();
           let canvas_html;
