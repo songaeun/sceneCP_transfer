@@ -52,7 +52,7 @@
     var room_set = ['bedroom3_wood-lighting', 'livingroom24_wood-lighting']
     var learning_set = room_set[0]
     var transfer_set = room_set[1]
-    var practice_set = 'bedroom5_forPractice';
+    var practice_set = 'bedroom3_wood-lighting';
     var space_rot = 0;//Math.random()*360; 
     var n_round_learning = 5;
     var econd = make_condition(key_feature, random_cat_label, learning_set, n_round_learning, transfer_set);
@@ -203,7 +203,7 @@
                 type: jsPsychHtmlButtonResponse,
                 stimulus: '<div style="font-size:20px;">This is the end of round'+(r+1)+'.</br>'+
                 'Take a break and press the button to move on to the next session.</br></br></div>',                    
-                choices: ['start'],
+                choices: ['next'],
                 data: {disp_type: 'learn_main_break'}
             }
 
@@ -292,7 +292,7 @@
     }
     var test_prac2main = {
         type: jsPsychHtmlButtonResponse,
-        stimuli: '<div style="font-size:20px;">Practice is done. Now move on to the main trials.',
+        stimuli: '<div style="font-size:20px;">Practice is done. Now move on to the main trials.</div>',
         choices: ['start'],
         data: {disp_type: 'test_pract2main'}
     }
