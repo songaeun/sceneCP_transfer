@@ -413,8 +413,8 @@
         tmp = window.crypto.getRandomValues(tmp)
         var dbpath = firebase.auth().currentUser.uid+'/'+tmp;
         firebase.database().ref(dbpath).set({                          
-        data:jsPsych.data.get().csv(),                          
-        // interaction_data:jsPsych.data.getInteractionData().values(),
+        data: JSON.parse( JSON.stringify( jsPsych.data.get().values() ) ),                            
+        interaction_data:JSON.parse( JSON.stringify( jsPsych.data.getInteractionData().values() ) ),
         date: Date()
         });                          
       }           
@@ -436,7 +436,7 @@
     timeline.push(inst_session1);
     timeline.push(preload_learning);
     timeline.push(learn_main1);
-    // timeline.push(learn_main_break1);
+    timeline.push(learn_main_break1);
     // timeline.push(learn_main2);
     // timeline.push(learn_main_break2);
     // timeline.push(learn_main3);
@@ -444,14 +444,14 @@
     // timeline.push(learn_main4);
     // timeline.push(learn_main_break4);
     // timeline.push(learn_main5);
-    // timeline.push(learn_main_break5);
+    timeline.push(learn_main_break5);
     // // ** memory reconstruction    
-    // timeline.push(inst_session2); 
-    // timeline.push(preload_learning);
-    // timeline.push(test_prac);
-    // timeline.push(test_prac2main);    
-    // timeline.push(test_main1);
-    // timeline.push(test_main_break1);
+    timeline.push(inst_session2); 
+    timeline.push(preload_learning);
+    timeline.push(test_prac);
+    timeline.push(test_prac2main);    
+    timeline.push(test_main1);
+    timeline.push(test_main_break1);
     // timeline.push(test_main2);
     // timeline.push(test_main_break2);
     // timeline.push(test_main3);
@@ -461,9 +461,9 @@
     // timeline.push(test_main5);
     // timeline.push(test_main_break5);
     // ** transfer-memory reconstruction
-    // timeline.push(preload_transfer);
-    // timeline.push(inst_session3);           
-    // timeline.push(transfer_main1);
+    timeline.push(preload_transfer);
+    timeline.push(inst_session3);           
+    timeline.push(transfer_main1);
     // timeline.push(test_main_break1);
     // timeline.push(transfer_main2);
     // timeline.push(test_main_break2);    
@@ -472,10 +472,10 @@
     // timeline.push(transfer_main4);
     // timeline.push(test_main_break4);     
     // timeline.push(transfer_main5);
-    // timeline.push(test_main_break5);      
+    timeline.push(test_main_break5);      
     // ** transfer-learning
-    timeline.push(inst_session4);    
-    timeline.push(transfer_learning);
+    // timeline.push(inst_session4);    
+    // timeline.push(transfer_learning);
     timeline.push(blank);
     // ** debriefing question
     timeline.push(survey);
