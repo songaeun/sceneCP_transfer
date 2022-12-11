@@ -157,8 +157,8 @@ var jsPsychReconstruct_2D = (function (jspsych) {
           document.removeEventListener('mousemove', this.search_event);          
           this.trial_data={};
           this.trial_data.search_rt = this.search_end - this.start_time;
-          this.trial_data.response = this.image_coord;  
-          this.trial_data.response_coord = this.
+          this.trial_data.response = this.image_param;  
+          this.trial_data.response_coord = this.image_coord;
           this.is_search = false;
           // response position indicator
           var rect = this.recon_arena.getBoundingClientRect();  
