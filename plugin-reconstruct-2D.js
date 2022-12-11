@@ -158,8 +158,8 @@ var jsPsychReconstruct_2D = (function (jspsych) {
           this.trial_data={};
           this.trial_data.search_rt = this.search_end - this.start_time;
           this.trial_data.response = this.image_param;  
-          this.trial_data.response_coord = this.image_coord;
-          this.is_search = false
+          this.trial_data.response_coord = this.cell_coordinates[this.image_coord];
+          this.is_search = false;
           // response position indicator
           var rect = this.recon_arena.getBoundingClientRect();  
           this.init_x = e.clientX - rect.left;
