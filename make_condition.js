@@ -85,7 +85,7 @@ function make_condition(relevant_ftr, random_cat_label, learning_set, n_round, t
             for(r of round_num){
                 rounded_learning_stim[g]['r'+(r+1)].push(chunked_stim_perDist[r]);
             }
-            remain_learning_stim.push(chunked_stim_perDist.slice(r, chunked_stim_perDist.length));
+            remain_learning_stim.push(chunked_stim_perDist.slice(r+1, chunked_stim_perDist.length));
         }
         // ____ assign the remaining stim to the round by 2 (euqual number)
         remain_learning_stim = _.shuffle(remain_learning_stim.flat(Infinity))
