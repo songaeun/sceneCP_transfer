@@ -125,6 +125,13 @@
     }
 
     // ** initial learn ** //    
+    var fixation = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: '<p style="font-size: 48px;">+</p>',
+        choices: "NO_KEYS",
+        trial_duration: 1000,
+        data: {disp_type: 'fixation'}
+    }
     var learn_display = {
         type: jsPsychImageKeyboardResponse,
         stimulus: jsPsych.timelineVariable('img_path'),
@@ -206,14 +213,7 @@
 
         }                       
     }
-    // ** reconstruction ** //
-    var fixation = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: '<p style="font-size: 48px;">+</p>',
-        choices: "NO_KEYS",
-        trial_duration: 1000,
-        data: {disp_type: 'fixation'}
-    }
+    // ** reconstruction ** //    
     var blank = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: ' ',
