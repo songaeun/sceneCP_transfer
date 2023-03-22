@@ -65,9 +65,9 @@
     // ** image preloading ** //
     var preload_inst = {
         type: jsPsychPreload,
-        images: ['stimuli/instruction/welcome_p1.png', 'stimuli/instruction/session1_p2.png',
-        'stimuli/instruction/session2_p3.png', 'stimuli/instruction/session3_p4.png',
-        'stimuli/instruction/session4_p5.png'],
+        images: ['stimuli/instruction/nfb_welcome_p1.jpg', 'stimuli/instruction/nfb_session1_p2.jpg',
+        'stimuli/instruction/nfb_session2_p3.jpg', 'stimuli/instruction/nfb_session3_p4.jpg',
+        'stimuli/instruction/nfb_session4_p5.jpg'],
         data: {disp_type: 'preload_inst'}
     }
     var images_learning = [];
@@ -180,7 +180,7 @@
     // }
     for(r=0; r<n_round_learning; r++){
         this['learn_main'+(r+1)] = {
-            timeline: [learn_display, feedback_display],
+            timeline: [learn_display],
             timeline_variables: econd.learning['r'+(r+1)],
             randomize_order: true
         }
