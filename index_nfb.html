@@ -180,7 +180,7 @@
     // }
     for(r=0; r<n_round_learning; r++){
         this['learn_main'+(r+1)] = {
-            timeline: [learn_display],
+            timeline: [fixation, learn_display],
             timeline_variables: econd.learning['r'+(r+1)],
             randomize_order: true
         }
@@ -406,7 +406,7 @@
       data: { // random rotation angle saving                
           disp_type: 'saving_display'
       },            
-      on_finish: function(){  
+      on_finish: function(data){  
         // jsPsych.data.displayData() 
         // send data to firebase!                                 
         var tmp = new Uint32Array(1);
@@ -431,7 +431,7 @@
     });
     timeline.push(preload_inst);
     timeline.push(consent);
-    timeline.push(demographic_page);    
+    // timeline.push(demographic_page);    
     timeline.push(inst_welcome);
     // ** learning           
     timeline.push(inst_session1);
@@ -446,11 +446,11 @@
     // timeline.push(learn_main_break4);
     // timeline.push(learn_main5);
     // timeline.push(learn_main_break5);
-    // ** memory reconstruction    
-    timeline.push(inst_session2); 
-    timeline.push(preload_learning);
-    timeline.push(test_prac);
-    timeline.push(test_prac2main);    
+    // // ** memory reconstruction    
+    // timeline.push(inst_session2); 
+    // timeline.push(preload_learning);
+    // timeline.push(test_prac);
+    // timeline.push(test_prac2main);    
     // timeline.push(test_main1);
     // timeline.push(test_main_break1);
     // timeline.push(test_main2);
@@ -461,11 +461,11 @@
     // timeline.push(test_main_break4);
     // timeline.push(test_main5);
     // timeline.push(test_main_break5);
-    // ** transfer-memory reconstruction
-    timeline.push(preload_transfer);
-    timeline.push(inst_session3);
-    timeline.push(transfer_main1);
-    timeline.push(test_main_break1);
+    // // ** transfer-memory reconstruction
+    // timeline.push(preload_transfer);
+    // timeline.push(inst_session3);
+    // timeline.push(transfer_main1);
+    // timeline.push(test_main_break1);
     // timeline.push(transfer_main2);
     // timeline.push(test_main_break2);    
     // timeline.push(transfer_main3);
@@ -475,9 +475,9 @@
     // timeline.push(transfer_main5);
     // timeline.push(test_main_break5);      
     // ** transfer-learning
-    timeline.push(inst_session4);    
-    timeline.push(transfer_learning);
-    timeline.push(blank);
+    // timeline.push(inst_session4);    
+    // timeline.push(transfer_learning);
+    // timeline.push(blank);
     // ** debriefing question
     timeline.push(survey);
     // ** end
