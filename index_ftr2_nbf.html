@@ -41,9 +41,12 @@
 </script>
 
 <script>
-    
+    /* 할 것: 
+    2. 자극 픽스 (dimension & attribute score 맞추기). 
+    */
+
     // ** design ** //
-    var key_feature = 'lighting'
+    var key_feature = 'wood'
     var cat_label = ['set1', 'set2']
     var random_cat_label = _.sample(cat_label, 2)
     var room_set = ['bedroom3_wood-lighting', 'livingroom24_wood-lighting']
@@ -420,30 +423,30 @@
 
     // ** timeline ** //
     timeline = [];  
-    // timeline.push({
-    //     type: jsPsychFullscreen,
-    //     fullscreen_mode: true,
-    //     delay_after: 0,
-    //     data: {disp_type: 'fullscreen-in'}
-    // });
-    // timeline.push(preload_inst);
-    // timeline.push(consent);
-    // timeline.push(demographic_page);    
-    // timeline.push(inst_welcome);
-    // // ** learning           
-    // timeline.push(inst_session1);
-    // timeline.push(preload_learning);
-    // timeline.push(learn_main1);
-    // timeline.push(learn_main_break1);
-    // timeline.push(learn_main2);
-    // timeline.push(learn_main_break2);
-    // timeline.push(learn_main3);
-    // timeline.push(learn_main_break3);
-    // timeline.push(learn_main4);
-    // timeline.push(learn_main_break4);
-    // timeline.push(learn_main5);
-    // timeline.push(learn_main_break5);
-    // // ** memory reconstruction    
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: true,
+        delay_after: 0,
+        data: {disp_type: 'fullscreen-in'}
+    });
+    timeline.push(preload_inst);
+    timeline.push(consent);
+    timeline.push(demographic_page);    
+    timeline.push(inst_welcome);
+    // ** learning           
+    timeline.push(inst_session1);
+    timeline.push(preload_learning);
+    timeline.push(learn_main1);
+    timeline.push(learn_main_break1);
+    timeline.push(learn_main2);
+    timeline.push(learn_main_break2);
+    timeline.push(learn_main3);
+    timeline.push(learn_main_break3);
+    timeline.push(learn_main4);
+    timeline.push(learn_main_break4);
+    timeline.push(learn_main5);
+    timeline.push(learn_main_break5);
+    // ** memory reconstruction    
     timeline.push(inst_session2); 
     timeline.push(preload_learning);
     timeline.push(test_prac);

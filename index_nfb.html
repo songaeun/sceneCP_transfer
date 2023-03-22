@@ -387,8 +387,10 @@
     var debrief_page = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: function(){                            
-            var html = 
-            '<p area-selected="font-size:15px;"> Thank you for participating! </br> You can leave this page.</p>'+                          
+            var html =             
+            '<p area-selected="font-size:15px;"> Thank you for participating! </br></br> '+
+            'Your participation confirmation code is: <u>'+jsPsych.data.get().last(1).values()[0].sbjID+'</u> </br>' +
+            '<b> Please copy and paste this code, and sent it to the researcher via email. </b> </p>'+                          
             '<embed src="stimuli/debrief_letter.pdf" style="width:80vw; height:70vh;"></embed>'
             return html;
         },
@@ -414,27 +416,28 @@
         data: JSON.parse( JSON.stringify( jsPsych.data.get().values() ) ),                            
         interaction_data:JSON.parse( JSON.stringify( jsPsych.data.getInteractionData().values() ) ),
         date: Date()
-        });                          
+        });   
+        data.sbjID = firebase.auth().currentUser.uid;                        
       }           
     }
 
     // ** timeline ** //
     timeline = [];  
-    // timeline.push({
-    //     type: jsPsychFullscreen,
-    //     fullscreen_mode: true,
-    //     delay_after: 0,
-    //     data: {disp_type: 'fullscreen-in'}
-    // });
-    // timeline.push(preload_inst);
-    // timeline.push(consent);
-    // timeline.push(demographic_page);    
-    // timeline.push(inst_welcome);
-    // // ** learning           
-    // timeline.push(inst_session1);
-    // timeline.push(preload_learning);
-    // timeline.push(learn_main1);
-    // timeline.push(learn_main_break1);
+    timeline.push({
+        type: jsPsychFullscreen,
+        fullscreen_mode: true,
+        delay_after: 0,
+        data: {disp_type: 'fullscreen-in'}
+    });
+    timeline.push(preload_inst);
+    timeline.push(consent);
+    timeline.push(demographic_page);    
+    timeline.push(inst_welcome);
+    // ** learning           
+    timeline.push(inst_session1);
+    timeline.push(preload_learning);
+    timeline.push(learn_main1);
+    timeline.push(learn_main_break1);
     // timeline.push(learn_main2);
     // timeline.push(learn_main_break2);
     // timeline.push(learn_main3);
@@ -443,41 +446,40 @@
     // timeline.push(learn_main_break4);
     // timeline.push(learn_main5);
     // timeline.push(learn_main_break5);
-    // // ** memory reconstruction    
+    // ** memory reconstruction    
     timeline.push(inst_session2); 
     timeline.push(preload_learning);
     timeline.push(test_prac);
     timeline.push(test_prac2main);    
-    timeline.push(test_main1);
-    timeline.push(test_main_break1);
-    timeline.push(test_main2);
-    timeline.push(test_main_break2);
-    timeline.push(test_main3);
-    timeline.push(test_main_break3);
-    timeline.push(test_main4);
-    timeline.push(test_main_break4);
-    timeline.push(test_main5);
-    timeline.push(test_main_break5);
+    // timeline.push(test_main1);
+    // timeline.push(test_main_break1);
+    // timeline.push(test_main2);
+    // timeline.push(test_main_break2);
+    // timeline.push(test_main3);
+    // timeline.push(test_main_break3);
+    // timeline.push(test_main4);
+    // timeline.push(test_main_break4);
+    // timeline.push(test_main5);
+    // timeline.push(test_main_break5);
     // ** transfer-memory reconstruction
     timeline.push(preload_transfer);
     timeline.push(inst_session3);
     timeline.push(transfer_main1);
     timeline.push(test_main_break1);
-    timeline.push(transfer_main2);
-    timeline.push(test_main_break2);    
-    timeline.push(transfer_main3);
-    timeline.push(test_main_break3);
-    timeline.push(transfer_main4);
-    timeline.push(test_main_break4);     
-    timeline.push(transfer_main5);
-    timeline.push(test_main_break5);      
+    // timeline.push(transfer_main2);
+    // timeline.push(test_main_break2);    
+    // timeline.push(transfer_main3);
+    // timeline.push(test_main_break3);
+    // timeline.push(transfer_main4);
+    // timeline.push(test_main_break4);     
+    // timeline.push(transfer_main5);
+    // timeline.push(test_main_break5);      
     // ** transfer-learning
     timeline.push(inst_session4);    
     timeline.push(transfer_learning);
     timeline.push(blank);
     // ** debriefing question
     timeline.push(survey);
-    timeline.push(save_data);
     // ** end
     timeline.push({
         type: jsPsychFullscreen,
@@ -485,13 +487,10 @@
         delay_after: 0,
         data: {disp_type: 'fullscreen-out'}
     });
-    
+    timeline.push(save_data);    
     timeline.push(debrief_page);
 
-    jsPsych.run(timeline);
-    // function startExperiment(){
-    //     jsPsych.run(timeline);
-    // }
+    jsPsych.run(timeline);    
     
     
 </script>
